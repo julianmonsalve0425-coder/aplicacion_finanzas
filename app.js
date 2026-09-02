@@ -7,7 +7,7 @@
 // CONFIGURACIÓN DINÁMICA DE LA URL DE LA API
 // ─────────────────────────────────────────
 // Si vas a desplegar el backend en Render / Railway, define su URL pública aquí:
-const PRODUCTION_API_URL = ''; // Ej: 'https://mi-backend-finanzas.onrender.com'
+const PRODUCTION_API_URL = 'https://aplicacion-finanzas.onrender.com';
 const LOCAL_API_URL = 'http://127.0.0.1:8000';
 
 function resolverApiUrl() {
@@ -213,7 +213,7 @@ async function apiFetch(endpoint, opciones = {}) {
             const errBody = await response.json();
             detalle = errBody.detalle || errBody.detail || errBody.error || detalle;
             if (Array.isArray(detalle)) detalle = detalle.join(', ');
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(detalle);
     }
 
@@ -280,11 +280,11 @@ function formatearPesos(valor) {
 
 function getSecciones() {
     return {
-        'dashboard':          document.getElementById('section-dashboard'),
-        'movimientos':        document.getElementById('section-movimientos'),
+        'dashboard': document.getElementById('section-dashboard'),
+        'movimientos': document.getElementById('section-movimientos'),
         'presupuestos-metas': document.getElementById('section-presupuestos-metas'),
-        'analitica':          document.getElementById('section-analitica'),
-        'nuevo':              document.getElementById('section-nuevo'),
+        'analitica': document.getElementById('section-analitica'),
+        'nuevo': document.getElementById('section-nuevo'),
     };
 }
 
@@ -301,11 +301,11 @@ function navegarA(id) {
     if (linkActivo) linkActivo.classList.add('active');
 
     const titulos = {
-        'dashboard':          ['Dashboard', 'Resumen financiero en tiempo real'],
-        'movimientos':        ['Historial de Movimientos', 'Consulta, filtra y gestiona ingresos y gastos'],
+        'dashboard': ['Dashboard', 'Resumen financiero en tiempo real'],
+        'movimientos': ['Historial de Movimientos', 'Consulta, filtra y gestiona ingresos y gastos'],
         'presupuestos-metas': ['Metas y Presupuestos', 'Planificación mensual y seguimiento de ahorro'],
-        'analitica':          ['Analítica Predictiva', 'Modelos Machine Learning e Inteligencia Financiera'],
-        'nuevo':              ['Registrar Movimiento', 'Agrega un nuevo ingreso o gasto a tu cuenta'],
+        'analitica': ['Analítica Predictiva', 'Modelos Machine Learning e Inteligencia Financiera'],
+        'nuevo': ['Registrar Movimiento', 'Agrega un nuevo ingreso o gasto a tu cuenta'],
     };
 
     if (titulos[id]) {
@@ -341,7 +341,7 @@ async function cargarResumen() {
     try {
         const data = await apiFetch('/resumen');
         document.getElementById('card-ingresos').textContent = formatearPesos(data.total_ingresos);
-        document.getElementById('card-gastos').textContent   = formatearPesos(data.total_gastos);
+        document.getElementById('card-gastos').textContent = formatearPesos(data.total_gastos);
 
         const balance = data.balance;
         const elBalance = document.getElementById('card-balance');
@@ -350,7 +350,7 @@ async function cargarResumen() {
 
         const elAhorro = document.getElementById('card-tasa-ahorro');
         if (elAhorro) {
-            elAhorro.textContent = data.porcentaje_ahorro > 0 
+            elAhorro.textContent = data.porcentaje_ahorro > 0
                 ? `🎯 Tasa de Ahorro: ${data.porcentaje_ahorro}%`
                 : '💡 Sin ahorro neto acumulado';
         }
@@ -358,8 +358,8 @@ async function cargarResumen() {
         setEstadoAPI(true, 'Conectado');
     } catch (err) {
         document.getElementById('card-ingresos').textContent = '$ 0';
-        document.getElementById('card-gastos').textContent   = '$ 0';
-        document.getElementById('card-balance').textContent  = '$ 0';
+        document.getElementById('card-gastos').textContent = '$ 0';
+        document.getElementById('card-balance').textContent = '$ 0';
         setEstadoAPI(false);
     }
 }
@@ -370,9 +370,9 @@ async function cargarPrediccion() {
         document.getElementById('card-prediccion').textContent = formatearPesos(data.prediccion);
 
         const badges = {
-            alta:  '🟢 Alta confianza',
+            alta: '🟢 Alta confianza',
             media: '🟡 Confianza media',
-            baja:  '🔴 Baja confianza',
+            baja: '🔴 Baja confianza',
         };
         const elConf = document.getElementById('prediccion-confianza');
         if (elConf) {
@@ -387,7 +387,7 @@ async function cargarAnomalias() {
     try {
         const data = await apiFetch('/analitica/anomalias?umbral_z=1.5');
         const alertBox = document.getElementById('alerta-anomalias');
-        const lista    = document.getElementById('lista-anomalias');
+        const lista = document.getElementById('lista-anomalias');
 
         if (data.anomalias && data.anomalias.length > 0) {
             alertBox.style.display = 'block';
@@ -460,20 +460,20 @@ async function cargarTablaMovimientos() {
     const tbody = document.getElementById('tbody-movimientos');
     tbody.innerHTML = `<tr><td colspan="6" class="table-loading">⏳ Cargando movimientos...</td></tr>`;
 
-    const tipo     = document.getElementById('filtro-tipo').value;
-    const cat      = document.getElementById('filtro-categoria').value;
-    const desde    = document.getElementById('filtro-desde').value;
-    const hasta    = document.getElementById('filtro-hasta').value;
+    const tipo = document.getElementById('filtro-tipo').value;
+    const cat = document.getElementById('filtro-categoria').value;
+    const desde = document.getElementById('filtro-desde').value;
+    const hasta = document.getElementById('filtro-hasta').value;
     const montoMin = document.getElementById('filtro-monto-min').value;
     const montoMax = document.getElementById('filtro-monto-max').value;
 
     const offset = (paginaActual - 1) * limitePorPagina;
 
     let endpoint = `/movimientos?paginado=true&limit=${limitePorPagina}&offset=${offset}`;
-    if (tipo)     endpoint += `&tipo=${encodeURIComponent(tipo)}`;
-    if (cat)      endpoint += `&id_categoria=${encodeURIComponent(cat)}`;
-    if (desde)    endpoint += `&desde=${encodeURIComponent(desde)}`;
-    if (hasta)    endpoint += `&hasta=${encodeURIComponent(hasta)}`;
+    if (tipo) endpoint += `&tipo=${encodeURIComponent(tipo)}`;
+    if (cat) endpoint += `&id_categoria=${encodeURIComponent(cat)}`;
+    if (desde) endpoint += `&desde=${encodeURIComponent(desde)}`;
+    if (hasta) endpoint += `&hasta=${encodeURIComponent(hasta)}`;
     if (montoMin) endpoint += `&monto_min=${encodeURIComponent(montoMin)}`;
     if (montoMax) endpoint += `&monto_max=${encodeURIComponent(montoMax)}`;
 
@@ -750,7 +750,7 @@ document.getElementById('form-meta')?.addEventListener('submit', async (e) => {
 
 async function cargarDetalleAnalitica() {
     const elPrediccion = document.getElementById('ml-prediccion-detalle');
-    const elAnomalias  = document.getElementById('ml-anomalias-detalle');
+    const elAnomalias = document.getElementById('ml-anomalias-detalle');
 
     if (elPrediccion) elPrediccion.innerHTML = `<span class="skeleton-text">Calculando proyección...</span>`;
     if (elAnomalias) elAnomalias.innerHTML = `<span class="skeleton-text">Analizando patrones...</span>`;
@@ -838,7 +838,7 @@ async function inicializarGraficos() {
     try {
         const data = await apiFetch('/movimientos?limit=200');
         movimientos = Array.isArray(data) ? data : (data.items || []);
-    } catch (_) {}
+    } catch (_) { }
 
     await renderizarGraficoDonut(movimientos);
     await renderizarGraficoLinea(movimientos);
@@ -908,7 +908,7 @@ async function renderizarGraficoLinea(movimientos) {
 
     const labels = Object.keys(meses).sort();
     const ingresos = labels.map(m => meses[m].ingreso);
-    const gastos   = labels.map(m => meses[m].gasto);
+    const gastos = labels.map(m => meses[m].gasto);
 
     const nombresLabels = labels.map(l => {
         const [yr, mo] = l.split('-');
@@ -978,8 +978,8 @@ document.getElementById('form-movimiento')?.addEventListener('submit', async (e)
     e.preventDefault();
 
     const btnGuardar = document.getElementById('btn-guardar');
-    const btnText    = btnGuardar.querySelector('.btn-text');
-    const btnLoader  = btnGuardar.querySelector('.btn-loader');
+    const btnText = btnGuardar.querySelector('.btn-text');
+    const btnLoader = btnGuardar.querySelector('.btn-loader');
 
     btnGuardar.disabled = true;
     btnText.style.display = 'none';
@@ -987,10 +987,10 @@ document.getElementById('form-movimiento')?.addEventListener('submit', async (e)
 
     const payload = {
         id_categoria: parseInt(document.getElementById('categoria').value),
-        tipo:         document.getElementById('tipo').value,
-        monto:        parseFloat(document.getElementById('monto').value),
-        fecha:        document.getElementById('fecha').value,
-        descripcion:  document.getElementById('descripcion').value || null,
+        tipo: document.getElementById('tipo').value,
+        monto: parseFloat(document.getElementById('monto').value),
+        fecha: document.getElementById('fecha').value,
+        descripcion: document.getElementById('descripcion').value || null,
     };
 
     if (!payload.id_categoria) {
