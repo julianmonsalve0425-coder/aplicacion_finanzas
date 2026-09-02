@@ -388,13 +388,28 @@ document.getElementById('sidebar-overlay')?.addEventListener('click', () => togg
 async function cargarResumen() {
     try {
         const data = await apiFetch('/resumen');
-        document.getElementById('card-ingresos').textContent = formatearPesos(data.total_ingresos);
-        document.getElementById('card-gastos').textContent = formatearPesos(data.total_gastos);
-
+        const fIngresos = formatearPesos(data.total_ingresos);
+        const fGastos = formatearPesos(data.total_gastos);
         const balance = data.balance;
+        const fBalance = formatearPesos(balance);
+
+        const elIngresos = document.getElementById('card-ingresos');
+        const elGastos = document.getElementById('card-gastos');
         const elBalance = document.getElementById('card-balance');
-        elBalance.textContent = formatearPesos(balance);
-        elBalance.className = `kpi-value ${balance >= 0 ? 'text-income' : 'text-expense'}`;
+
+        if (elIngresos) {
+            elIngresos.textContent = fIngresos;
+            elIngresos.title = fIngresos;
+        }
+        if (elGastos) {
+            elGastos.textContent = fGastos;
+            elGastos.title = fGastos;
+        }
+        if (elBalance) {
+            elBalance.textContent = fBalance;
+            elBalance.title = fBalance;
+            elBalance.className = `kpi-value ${balance >= 0 ? 'text-income' : 'text-expense'}`;
+        }
 
         const elAhorro = document.getElementById('card-tasa-ahorro');
         if (elAhorro) {
@@ -415,7 +430,12 @@ async function cargarResumen() {
 async function cargarPrediccion() {
     try {
         const data = await apiFetch('/analitica/prediccion');
-        document.getElementById('card-prediccion').textContent = formatearPesos(data.prediccion);
+        const fPred = formatearPesos(data.prediccion);
+        const elPred = document.getElementById('card-prediccion');
+        if (elPred) {
+            elPred.textContent = fPred;
+            elPred.title = fPred;
+        }
 
         const badges = {
             alta: '🟢 Alta confianza',

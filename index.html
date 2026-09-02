@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 
 <body>
@@ -33,7 +33,7 @@
             <div class="auth-header">
                 <div class="brand-logo-large">
                     <span class="brand-icon">💰</span>
-                    <span class="brand-name">Finanzas</span>
+                    <span class="brand-name">Finanzas Personales</span>
                 </div>
                 <h2 id="auth-modal-title">Bienvenido</h2>
                 <p class="auth-subtitle">Gestiona tus ingresos, metas y proyecciones financieras</p>
@@ -160,6 +160,9 @@
                     🚪
                 </button>
             </div>
+            <button type="button" class="btn btn-logout-full" id="btn-logout-full" onclick="cerrarSesion()">
+                🚪 Cerrar Sesión
+            </button>
         </div>
     </aside>
 
@@ -174,13 +177,14 @@
         <!-- Topbar -->
         <header class="topbar">
             <div class="topbar-left">
-                <button type="button" class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Abrir menú de navegación">
+                <button type="button" class="btn-menu-toggle" id="btn-menu-toggle"
+                    aria-label="Abrir menú de navegación">
                     <span class="hamburger-bar"></span>
                     <span class="hamburger-bar"></span>
                     <span class="hamburger-bar"></span>
                 </button>
                 <div class="topbar-titles">
-                    <h1 id="page-title">Dashboard</h1>
+                    <h1 id="page-title">Dashboard Financiero</h1>
                     <p class="topbar-subtitle" id="page-subtitle">Resumen financiero en tiempo real</p>
                 </div>
             </div>
@@ -193,6 +197,10 @@
                     <span class="status-dot"></span>
                     <span id="status-text">Conectando...</span>
                 </div>
+                <button type="button" class="btn btn-ghost btn-logout-topbar" id="btn-logout-topbar"
+                    title="Cerrar sesión" onclick="cerrarSesion()">
+                    🚪
+                </button>
             </div>
         </header>
 
@@ -542,7 +550,7 @@
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 
 </html>
