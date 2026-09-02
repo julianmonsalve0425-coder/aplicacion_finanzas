@@ -95,9 +95,34 @@ body {
 .sidebar-brand {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
-    padding: 24px 20px;
+    padding: 20px;
     border-bottom: 1px solid var(--clr-border);
+}
+
+.brand-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-sidebar-close {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--txt-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    transition: all var(--transition);
+}
+
+.btn-sidebar-close:hover {
+    color: var(--txt-primary);
+    background: var(--clr-surface-2);
 }
 
 .brand-icon {
@@ -1277,79 +1302,346 @@ input::placeholder {
 }
 
 /* ─────────────────────────────────────────
-   RESPONSIVE DESIGN
+   NAVEGACIÓN MÓVIL (DRAWER, HAMBURGER & BOTTOM BAR)
 ───────────────────────────────────────── */
-@media (max-width: 960px) {
+body.no-scroll {
+    overflow: hidden;
+}
+
+/* Botón Hamburguesa en Topbar */
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.topbar-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 40px;
+    height: 40px;
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 8px;
+    transition: all var(--transition);
+    color: var(--txt-primary);
+}
+
+.btn-menu-toggle:hover {
+    background: var(--clr-surface-2);
+    border-color: var(--clr-border-hover);
+}
+
+.btn-menu-toggle .hamburger-bar {
+    width: 20px;
+    height: 2px;
+    background: var(--txt-primary);
+    border-radius: 2px;
+    transition: all var(--transition);
+}
+
+/* Overlay Oscuro para Menú Móvil */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Barra de Navegación Inferior Móvil (Bottom Nav) */
+.bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--clr-border);
+    z-index: 999;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 4px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.bnav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--txt-muted);
+    text-decoration: none;
+    font-size: 0.68rem;
+    font-weight: 500;
+    flex: 1;
+    height: 100%;
+    transition: color var(--transition), transform var(--transition);
+}
+
+.bnav-item:hover {
+    color: var(--txt-primary);
+}
+
+.bnav-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform var(--transition);
+}
+
+.bnav-item.active {
+    color: var(--clr-primary);
+    font-weight: 700;
+}
+
+.bnav-item.active .bnav-icon {
+    transform: translateY(-2px) scale(1.1);
+}
+
+/* Botón central destacado ("➕ Nuevo") */
+.bnav-center {
+    position: relative;
+}
+
+.bnav-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--clr-primary), #818cf8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    margin-top: -18px;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+    border: 3px solid var(--clr-bg);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.bnav-center:hover .bnav-circle {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.bnav-center .bnav-label {
+    margin-top: 2px;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE DESIGN (BREAKPOINTS)
+───────────────────────────────────────── */
+
+/* Tablets y pantallas medianas (<= 992px) */
+@media (max-width: 992px) {
+    .btn-menu-toggle {
+        display: flex;
+    }
+
+    .btn-sidebar-close {
+        display: block;
+    }
+
     .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        max-width: 85vw;
+        height: 100vh;
+        z-index: 1050;
         transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
     }
 
     .main-content {
         margin-left: 0;
         max-width: 100vw;
-        padding: 0 16px 40px;
+        padding: 0 16px 85px;
     }
 
-    .goals-budgets-grid {
-        grid-template-columns: 1fr;
+    .topbar {
+        padding: 16px 0;
+        margin-bottom: 20px;
     }
 
-    .form-row {
-        grid-template-columns: 1fr;
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+        margin-bottom: 22px;
     }
 
     .charts-grid {
         grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .goals-budgets-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+}
+
+/* Teléfonos y pantallas móviles (<= 768px) */
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+    }
+
+    .main-content {
+        padding: 0 12px 90px;
     }
 
     .topbar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .topbar h1 {
+        font-size: 1.35rem;
+    }
+
+    .topbar-subtitle {
+        font-size: 0.75rem;
+    }
+
+    .topbar-actions {
+        gap: 8px;
+    }
+
+    .btn-refresh .refresh-text {
+        display: none;
+    }
+
+    .btn-refresh {
+        padding: 8px 12px;
+    }
+
+    .status-badge {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+
+    .filter-bar {
         flex-direction: column;
-        align-items: flex-start;
-    }
-}
-
-@media (max-width: 600px) {
-    .kpi-grid {
-        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+        gap: 8px;
     }
 
-    .kpi-value {
-        font-size: 1.25rem;
+    .filter-select,
+    .filter-input {
+        width: 100% !important;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .form-card {
-        padding: 20px;
+        padding: 20px 16px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .form-actions button {
+        width: 100%;
+    }
+
+    .modal-card {
+        padding: 22px 18px;
+        width: 94vw;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .pagination-bar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
     }
 }
 
-/* Adaptación para pantallas pequeñas (móviles) */
-@media (max-width: 768px) {
-    .dashboard-container {
-        flex-direction: column;
+/* Teléfonos pequeños (<= 480px) */
+@media (max-width: 480px) {
+    .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
 
-    .sidebar {
-        width: 100% !important;
-        height: auto !important;
-        position: relative !important;
-        padding: 1rem;
+    .kpi-card {
+        padding: 14px 12px;
+        gap: 10px;
     }
 
-    .sidebar-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
+    .kpi-icon {
+        font-size: 1.4rem;
     }
 
-    .sidebar-nav button,
-    .sidebar-nav a {
-        width: auto !important;
-        margin-bottom: 0 !important;
+    .kpi-label {
+        font-size: 0.68rem;
     }
 
-    .logout-btn {
-        margin-top: 1rem;
-        width: 100% !important;
+    .kpi-value {
+        font-size: 1.15rem;
+    }
+
+    .kpi-meta {
+        font-size: 0.65rem;
+    }
+
+    .topbar h1 {
+        font-size: 1.2rem;
+    }
+
+    .chart-wrapper {
+        height: 220px;
     }
 }

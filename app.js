@@ -288,17 +288,44 @@ function getSecciones() {
     };
 }
 
-const navLinks = document.querySelectorAll('.nav-link');
+function toggleSidebar(abrir) {
+    const sidebar = document.getElementById('sidebar') || document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (!sidebar) return;
+
+    const estaAbierto = sidebar.classList.contains('open');
+    const forzar = typeof abrir === 'boolean' ? abrir : !estaAbierto;
+
+    if (forzar) {
+        sidebar.classList.add('open');
+        if (overlay) overlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+    } else {
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    }
+}
 
 function navegarA(id) {
     const sec = getSecciones();
     Object.values(sec).forEach(s => s && s.classList.remove('active'));
     if (sec[id]) sec[id].classList.add('active');
 
+    // Actualizar enlaces del sidebar lateral
     const links = document.querySelectorAll('.nav-link');
     links.forEach(link => link.classList.remove('active'));
     const linkActivo = document.getElementById(`nav-${id}`);
     if (linkActivo) linkActivo.classList.add('active');
+
+    // Actualizar items de la barra inferior móvil
+    const bnavItems = document.querySelectorAll('.bnav-item');
+    bnavItems.forEach(bitem => {
+        bitem.classList.remove('active');
+        if (bitem.getAttribute('data-target') === id) {
+            bitem.classList.add('active');
+        }
+    });
 
     const titulos = {
         'dashboard': ['Dashboard', 'Resumen financiero en tiempo real'],
@@ -315,6 +342,12 @@ function navegarA(id) {
         if (subTitleEl) subTitleEl.textContent = titulos[id][1];
     }
 
+    // Cerrar sidebar en móviles tras seleccionar una opción
+    toggleSidebar(false);
+
+    // Desplazar al inicio suavemente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Carga perezosa de secciones
     if (id === 'movimientos') cargarTablaMovimientos();
     if (id === 'presupuestos-metas') {
@@ -325,13 +358,28 @@ function navegarA(id) {
     if (id === 'analitica') cargarDetalleAnalitica();
 }
 
-navLinks.forEach(link => {
+// Event listeners para navegación lateral
+document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         const destino = link.id.replace('nav-', '');
         navegarA(destino);
     });
 });
+
+// Event listeners para barra inferior móvil
+document.querySelectorAll('.bnav-item').forEach(bitem => {
+    bitem.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = bitem.getAttribute('data-target');
+        if (target) navegarA(target);
+    });
+});
+
+// Botones de toggle para menú móvil
+document.getElementById('btn-menu-toggle')?.addEventListener('click', () => toggleSidebar());
+document.getElementById('btn-sidebar-close')?.addEventListener('click', () => toggleSidebar(false));
+document.getElementById('sidebar-overlay')?.addEventListener('click', () => toggleSidebar(false));
 
 // ─────────────────────────────────────────
 // CARGA DE DATOS DEL DASHBOARD & KPIS

@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body>
@@ -124,10 +124,13 @@
     <!-- ══════════════════════════════════════════
          SIDEBAR / MENÚ DE NAVEGACIÓN
     ══════════════════════════════════════════ -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <span class="brand-icon">💰</span>
-            <span class="brand-name">Finanzas</span>
+            <div class="brand-info">
+                <span class="brand-icon">💰</span>
+                <span class="brand-name">Finanzas</span>
+            </div>
+            <button type="button" class="btn-sidebar-close" id="btn-sidebar-close" aria-label="Cerrar menú">✕</button>
         </div>
         <nav class="sidebar-nav">
             <a href="#dashboard" class="nav-link active" id="nav-dashboard">
@@ -160,6 +163,9 @@
         </div>
     </aside>
 
+    <!-- Overlay oscuro para cerrar el menú lateral en móviles -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
     <!-- ══════════════════════════════════════════
          CONTENIDO PRINCIPAL
     ══════════════════════════════════════════ -->
@@ -167,13 +173,21 @@
 
         <!-- Topbar -->
         <header class="topbar">
-            <div>
-                <h1 id="page-title">Dashboard</h1>
-                <p class="topbar-subtitle" id="page-subtitle">Resumen financiero en tiempo real</p>
+            <div class="topbar-left">
+                <button type="button" class="btn-menu-toggle" id="btn-menu-toggle" aria-label="Abrir menú de navegación">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+                <div class="topbar-titles">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p class="topbar-subtitle" id="page-subtitle">Resumen financiero en tiempo real</p>
+                </div>
             </div>
             <div class="topbar-actions">
-                <button class="btn btn-ghost" id="btn-refresh" title="Actualizar datos">
-                    🔄 Actualizar
+                <button class="btn btn-ghost btn-refresh" id="btn-refresh" title="Actualizar datos">
+                    <span class="refresh-icon">🔄</span>
+                    <span class="refresh-text">Actualizar</span>
                 </button>
                 <div class="status-badge" id="api-status">
                     <span class="status-dot"></span>
@@ -499,10 +513,36 @@
 
     </main>
 
+    <!-- ══════════════════════════════════════════
+         BARRA DE NAVEGACIÓN INFERIOR (MÓVILES)
+    ══════════════════════════════════════════ -->
+    <nav class="bottom-nav" id="bottom-nav" aria-label="Navegación móvil">
+        <a href="#dashboard" class="bnav-item active" data-target="dashboard" id="bnav-dashboard">
+            <span class="bnav-icon">📊</span>
+            <span class="bnav-label">Dashboard</span>
+        </a>
+        <a href="#movimientos" class="bnav-item" data-target="movimientos" id="bnav-movimientos">
+            <span class="bnav-icon">📋</span>
+            <span class="bnav-label">Movs</span>
+        </a>
+        <a href="#nuevo" class="bnav-item bnav-center" data-target="nuevo" id="bnav-nuevo">
+            <span class="bnav-circle">➕</span>
+            <span class="bnav-label">Nuevo</span>
+        </a>
+        <a href="#presupuestos-metas" class="bnav-item" data-target="presupuestos-metas" id="bnav-presupuestos-metas">
+            <span class="bnav-icon">🎯</span>
+            <span class="bnav-label">Metas</span>
+        </a>
+        <a href="#analitica" class="bnav-item" data-target="analitica" id="bnav-analitica">
+            <span class="bnav-icon">🧠</span>
+            <span class="bnav-label">Analítica</span>
+        </a>
+    </nav>
+
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=3"></script>
 </body>
 
 </html>
