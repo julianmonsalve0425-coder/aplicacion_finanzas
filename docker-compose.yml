@@ -1,0 +1,78 @@
+# ============================================================
+# docker-compose.yml — Orquestación de FastAPI + MySQL 8.0
+# Levantar con: docker compose up --build -d
+# ============================================================
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────
+  # Base de Datos MySQL 8.0
+  # ─────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: finanzas_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_seguro
+      MYSQL_DATABASE: finanzas_personales
+      MYSQL_USER: finanzas_user
+      MYSQL_PASSWORD: finanzas_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Db/database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+      - ./Db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    networks:
+      - finanzas_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_seguro"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # ─────────────────────────────────────────
+  # API Backend FastAPI + Frontend
+  # ─────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: finanzas_api
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: finanzas_user
+      DB_PASSWORD: finanzas_password
+      DB_NAME: finanzas_personales
+      SECRET_KEY: 9f8e7d6c5b4a39281726354859607182a1b2c3d4e5f60718293a4b5c6d7e8f90
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+      DEBUG: "True"
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      CORS_ORIGINS: "http://localhost,http://localhost:3000,http://localhost:5500,http://localhost:8000,http://127.0.0.1,http://127.0.0.1:5500,http://127.0.0.1:8000,null"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./API Backend RESTful (FastAPI)/ml_models:/app/API Backend RESTful (FastAPI)/ml_models
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - finanzas_net
+
+# ─────────────────────────────────────────
+# Volúmenes y Redes
+# ─────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  finanzas_net:
+    driver: bridge

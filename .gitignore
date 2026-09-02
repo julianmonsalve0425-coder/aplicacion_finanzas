@@ -1,0 +1,62 @@
+# ============================================================
+# .gitignore — Reglas de exclusión para Git
+# ============================================================
+
+# Cache de Python y archivos compilados
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Bases de datos SQLite y temporales generados
+*.db
+*.sqlite
+*.sqlite3
+finanzas.db
+*.db-journal
+*.db-wal
+*.db-shm
+mysql_data/
+
+# Variables de entorno y credenciales
+.env
+.env.*
+*.env
+!.env.example
+
+# Entornos virtuales Python
+venv/
+.venv/
+env/
+ENV/
+
+# Modelos entrenados / Artefactos Machine Learning
+*.joblib
+*.pkl
+ml_models/*.joblib
+!ml_models/.gitkeep
+
+# Distribuciones y empaquetado
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDEs y editores
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+uvicorn.log

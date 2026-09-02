@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Finanzas — Plataforma integral de finanzas personales, presupuestos, metas de ahorro y análisis predictivo con Inteligencia Artificial.">
+    <meta name="theme-color" content="#0f172a">
+    <title>Finanzas — Gestión Financiera Inteligente</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js para visualización de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════
+         MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO)
+    ══════════════════════════════════════════ -->
+    <div id="auth-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true"
+        aria-labelledby="auth-modal-title">
+        <div class="modal-card auth-card">
+            <div class="auth-header">
+                <div class="brand-logo-large">
+                    <span class="brand-icon">💰</span>
+                    <span class="brand-name">Finanzas</span>
+                </div>
+                <h2 id="auth-modal-title">Bienvenido</h2>
+                <p class="auth-subtitle">Gestiona tus ingresos, metas y proyecciones financieras</p>
+            </div>
+
+            <!-- Selector de Pestañas Auth -->
+            <div class="auth-tabs" role="tablist">
+                <button type="button" class="tab-btn active" id="tab-login" onclick="cambiarTabAuth('login')">Iniciar
+                    Sesión</button>
+                <button type="button" class="tab-btn" id="tab-register" onclick="cambiarTabAuth('register')">Crear
+                    Cuenta</button>
+            </div>
+
+            <!-- Formulario Iniciar Sesión -->
+            <form id="form-login" class="auth-form" novalidate>
+                <div class="form-group">
+                    <label for="login-correo">Correo Electrónico</label>
+                    <input type="email" id="login-correo" placeholder="ejemplo@correo.com" required
+                        autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-submit-login">
+                    <span class="btn-text">🔐 Ingresar al Dashboard</span>
+                    <span class="btn-loader" style="display:none;">⏳ Verificando...</span>
+                </button>
+                <div class="auth-demo-hint">
+                    <p>¿Quieres probar la app de inmediato?</p>
+                    <button type="button" class="btn btn-ghost btn-sm" id="btn-demo-login"
+                        onclick="autocompletarDemo()">
+                        ⚡ Cargar Usuario Demo (Ana Torres)
+                    </button>
+                </div>
+            </form>
+
+            <!-- Formulario Crear Cuenta -->
+            <form id="form-register" class="auth-form" style="display:none;" novalidate>
+                <div class="form-group">
+                    <label for="reg-nombre">Nombre Completo</label>
+                    <input type="text" id="reg-nombre" placeholder="Tu Nombre y Apellido" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="reg-correo">Correo Electrónico</label>
+                    <input type="email" id="reg-correo" placeholder="tu@correo.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Contraseña (Mínimo 8 caracteres)</label>
+                    <input type="password" id="reg-password" placeholder="••••••••" minlength="8" required
+                        autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-submit-register">
+                    <span class="btn-text">✨ Crear mi Cuenta</span>
+                    <span class="btn-loader" style="display:none;">⏳ Registrando...</span>
+                </button>
+            </form>
+
+            <div id="auth-feedback" class="form-feedback" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MODAL PARA ABONAR A META DE AHORRO
+    ══════════════════════════════════════════ -->
+    <div id="modal-abono" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Abonar a Meta de Ahorro</h3>
+                <button type="button" class="modal-close" onclick="cerrarModalAbono()">✕</button>
+            </div>
+            <form id="form-abono">
+                <input type="hidden" id="abono-meta-id">
+                <p id="abono-meta-nombre" class="modal-desc"></p>
+                <div class="form-group">
+                    <label for="abono-monto">Monto a Aportar (COP $)</label>
+                    <input type="number" id="abono-monto" min="1000" step="1000" placeholder="Ej: 200000" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" onclick="cerrarModalAbono()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">💰 Confirmar Abono</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR / MENÚ DE NAVEGACIÓN
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon">💰</span>
+            <span class="brand-name">Finanzas</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-link active" id="nav-dashboard">
+                <span class="nav-icon">📊</span> Dashboard
+            </a>
+            <a href="#movimientos" class="nav-link" id="nav-movimientos">
+                <span class="nav-icon">📋</span> Movimientos
+            </a>
+            <a href="#presupuestos-metas" class="nav-link" id="nav-presupuestos-metas">
+                <span class="nav-icon">🎯</span> Metas & Presupuestos
+            </a>
+            <a href="#analitica" class="nav-link" id="nav-analitica">
+                <span class="nav-icon">🧠</span> Analítica ML
+            </a>
+            <a href="#nuevo" class="nav-link" id="nav-nuevo">
+                <span class="nav-icon">➕</span> Registrar
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-badge" id="sidebar-user-badge">
+                <span class="user-avatar">👤</span>
+                <div class="user-info-text">
+                    <p class="user-name" id="user-display-name">Ana Torres</p>
+                    <p class="user-id" id="user-display-email">ana@example.com</p>
+                </div>
+                <button type="button" class="btn-logout" id="btn-logout" title="Cerrar sesión" onclick="cerrarSesion()">
+                    🚪
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════════
+         CONTENIDO PRINCIPAL
+    ══════════════════════════════════════════ -->
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div>
+                <h1 id="page-title">Dashboard</h1>
+                <p class="topbar-subtitle" id="page-subtitle">Resumen financiero en tiempo real</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-ghost" id="btn-refresh" title="Actualizar datos">
+                    🔄 Actualizar
+                </button>
+                <div class="status-badge" id="api-status">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Conectando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Banner de error global -->
+        <div id="error-banner" class="error-banner" style="display:none;" role="alert">
+            <span class="error-icon">⚠️</span>
+            <span id="error-banner-msg">Error de conexión con el servidor</span>
+            <button onclick="document.getElementById('error-banner').style.display='none'"
+                class="error-close">✕</button>
+        </div>
+
+        <!-- ══════════ SECCIÓN 1: DASHBOARD ══════════ -->
+        <section id="section-dashboard" class="page-section active">
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card income-card" id="kpi-ingresos">
+                    <div class="kpi-icon">💵</div>
+                    <div class="kpi-body">
+                        <p class="kpi-label">Total Ingresos</p>
+                        <p class="kpi-value" id="card-ingresos">
+                            <span class="skeleton-text">Cargando...</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="kpi-card expense-card" id="kpi-gastos">
+                    <div class="kpi-icon">💸</div>
+                    <div class="kpi-body">
+                        <p class="kpi-label">Total Gastos</p>
+                        <p class="kpi-value" id="card-gastos">
+                            <span class="skeleton-text">Cargando...</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="kpi-card balance-card" id="kpi-balance">
+                    <div class="kpi-icon">⚖️</div>
+                    <div class="kpi-body">
+                        <p class="kpi-label">Balance Neto</p>
+                        <p class="kpi-value" id="card-balance">
+                            <span class="skeleton-text">Cargando...</span>
+                        </p>
+                        <p class="kpi-meta" id="card-tasa-ahorro"></p>
+                    </div>
+                </div>
+
+                <div class="kpi-card prediction-card" id="kpi-prediccion">
+                    <div class="kpi-icon">🔮</div>
+                    <div class="kpi-body">
+                        <p class="kpi-label">Gasto Próximo Mes (ML)</p>
+                        <p class="kpi-value" id="card-prediccion">
+                            <span class="skeleton-text">Cargando...</span>
+                        </p>
+                        <p class="kpi-meta" id="prediccion-confianza"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerta de anomalías -->
+            <div id="alerta-anomalias" class="anomaly-alert" style="display:none;" role="alert">
+                <div class="anomaly-header">
+                    <span class="anomaly-icon">🚨</span>
+                    <h2 class="anomaly-title">Detección de Gastos Inusuales (Z-Score)</h2>
+                    <button onclick="document.getElementById('alerta-anomalias').style.display='none'"
+                        class="anomaly-close">✕</button>
+                </div>
+                <ul id="lista-anomalias" class="anomaly-list"></ul>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2 class="chart-title">Distribución de Gastos</h2>
+                    <p class="chart-subtitle">Agrupados por categoría</p>
+                    <div class="chart-wrapper">
+                        <canvas id="chartCategorias"
+                            aria-label="Gráfico de distribución de gastos por categoría"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2 class="chart-title">Tendencia Mensual</h2>
+                    <p class="chart-subtitle">Comparativa Ingresos vs. Gastos</p>
+                    <div class="chart-wrapper">
+                        <canvas id="chartTendencia" aria-label="Gráfico de tendencia mensual"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════ SECCIÓN 2: MOVIMIENTOS ══════════ -->
+        <section id="section-movimientos" class="page-section">
+            <div class="section-header">
+                <h2>Historial de Movimientos</h2>
+                <div class="filter-bar">
+                    <select id="filtro-tipo" class="filter-select">
+                        <option value="">Todos los tipos</option>
+                        <option value="ingreso">💵 Ingresos</option>
+                        <option value="gasto">💸 Gastos</option>
+                    </select>
+                    <select id="filtro-categoria" class="filter-select">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <input type="date" id="filtro-desde" class="filter-input" title="Fecha inicio">
+                    <input type="date" id="filtro-hasta" class="filter-input" title="Fecha fin">
+                    <input type="number" id="filtro-monto-min" class="filter-input" placeholder="Monto mín"
+                        style="width:110px;">
+                    <input type="number" id="filtro-monto-max" class="filter-input" placeholder="Monto máx"
+                        style="width:110px;">
+                    <button id="btn-filtrar" class="btn btn-primary btn-sm">🔍 Filtrar</button>
+                    <button id="btn-limpiar-filtros" class="btn btn-ghost btn-sm">Limpiar</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="tabla-movimientos">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-movimientos">
+                        <tr>
+                            <td colspan="6" class="table-loading">⏳ Cargando movimientos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginador -->
+            <div class="pagination-bar" id="pagination-movimientos">
+                <span class="pagination-info" id="pagination-info">Mostrando 0 de 0</span>
+                <div class="pagination-controls">
+                    <button type="button" class="btn btn-ghost btn-sm" id="btn-prev-page" disabled>◀ Anterior</button>
+                    <span class="page-number" id="current-page-display">1</span>
+                    <button type="button" class="btn btn-ghost btn-sm" id="btn-next-page">Siguiente ▶</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════ SECCIÓN 3: METAS Y PRESUPUESTOS ══════════ -->
+        <section id="section-presupuestos-metas" class="page-section">
+            <div class="goals-budgets-grid">
+
+                <!-- Columna Presupuestos -->
+                <div class="feature-column">
+                    <div class="column-header">
+                        <h2>🎯 Presupuestos Mensuales</h2>
+                        <button class="btn btn-ghost btn-sm" onclick="toggleFormPresupuesto()">➕ Nuevo
+                            Presupuesto</button>
+                    </div>
+
+                    <!-- Formulario crear presupuesto -->
+                    <div id="card-form-presupuesto" class="form-card sub-form-card"
+                        style="display:none; margin-bottom:16px;">
+                        <h3>Fijar Presupuesto Mensual</h3>
+                        <form id="form-presupuesto">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="presupuesto-categoria">Categoría (Gasto)</label>
+                                    <select id="presupuesto-categoria" required></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="presupuesto-monto">Monto Límite (COP $)</label>
+                                    <input type="number" id="presupuesto-monto" min="1000" step="1000"
+                                        placeholder="Ej: 500000" required>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-ghost btn-sm"
+                                    onclick="toggleFormPresupuesto()">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Guardar Presupuesto</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="lista-presupuestos" class="cards-list">
+                        <div class="empty-state">⏳ Cargando presupuestos...</div>
+                    </div>
+                </div>
+
+                <!-- Columna Metas de Ahorro -->
+                <div class="feature-column">
+                    <div class="column-header">
+                        <h2>🏆 Metas de Ahorro</h2>
+                        <button class="btn btn-ghost btn-sm" onclick="toggleFormMeta()">➕ Nueva Meta</button>
+                    </div>
+
+                    <!-- Formulario crear meta -->
+                    <div id="card-form-meta" class="form-card sub-form-card" style="display:none; margin-bottom:16px;">
+                        <h3>Crear Meta de Ahorro</h3>
+                        <form id="form-meta">
+                            <div class="form-group">
+                                <label for="meta-nombre">Nombre de la Meta</label>
+                                <input type="text" id="meta-nombre" placeholder="Ej: Fondo de emergencia" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="meta-objetivo">Monto Objetivo (COP $)</label>
+                                    <input type="number" id="meta-objetivo" min="1000" step="1000"
+                                        placeholder="Ej: 5000000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="meta-fecha">Fecha Límite</label>
+                                    <input type="date" id="meta-fecha">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-ghost btn-sm"
+                                    onclick="toggleFormMeta()">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Guardar Meta</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="lista-metas" class="cards-list">
+                        <div class="empty-state">⏳ Cargando metas...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════ SECCIÓN 4: ANALÍTICA ML ══════════ -->
+        <section id="section-analitica" class="page-section">
+            <div class="analytics-header">
+                <div>
+                    <h2 class="section-heading">Módulo Analítico & Machine Learning</h2>
+                    <p class="section-subheading">Modelos estadísticos y predictivos aplicados a tus patrones de consumo
+                    </p>
+                </div>
+                <button type="button" class="btn btn-ghost" id="btn-reentrenar-ml" onclick="forzarReentrenamientoML()">
+                    ⚙️ Reentrenar Modelo (Joblib)
+                </button>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-icon">📈</div>
+                    <h3>Proyección de Gasto Próximo Mes</h3>
+                    <p class="analytics-desc">Ajuste de Regresión Lineal con Scikit-learn sobre el historial mensual</p>
+                    <div id="ml-prediccion-detalle" class="analytics-result">
+                        <span class="skeleton-text">Calculando proyección...</span>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <div class="analytics-icon">🔍</div>
+                    <h3>Detección de Anomalías Estadísticas</h3>
+                    <p class="analytics-desc">Monitoreo de desviaciones Z-Score en gastos extraordinarios</p>
+                    <div id="ml-anomalias-detalle" class="analytics-result">
+                        <span class="skeleton-text">Analizando patrones...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════ SECCIÓN 5: REGISTRAR MOVIMIENTO ══════════ -->
+        <section id="section-nuevo" class="page-section">
+            <div class="form-card" id="nuevo">
+                <div class="form-card-header">
+                    <h2>Registrar Movimiento</h2>
+                    <p>Ingresa un nuevo ingreso o gasto a tu historial financiero</p>
+                </div>
+
+                <form id="form-movimiento" class="movement-form" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo">Tipo de Movimiento</label>
+                            <select id="tipo" required onchange="filtrarCategoriasPorTipo()">
+                                <option value="gasto">💸 Gasto</option>
+                                <option value="ingreso">💵 Ingreso</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Categoría</label>
+                            <select id="categoria" required>
+                                <option value="">Seleccionar categoría...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="monto">Monto (COP $)</label>
+                            <input type="number" id="monto" placeholder="Ej: 150000" step="0.01" min="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fecha">Fecha</label>
+                            <input type="date" id="fecha" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="descripcion">Descripción (Opcional)</label>
+                        <input type="text" id="descripcion" placeholder="Ej: Mercado quincenal o Salario base">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-ghost">Limpiar Formulario</button>
+                        <button type="submit" class="btn btn-primary" id="btn-guardar">
+                            <span class="btn-text">💾 Guardar Movimiento</span>
+                            <span class="btn-loader" style="display:none;">⏳ Guardando...</span>
+                        </button>
+                    </div>
+
+                    <div id="form-feedback" class="form-feedback" style="display:none;"></div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
